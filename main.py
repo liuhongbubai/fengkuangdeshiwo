@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
+
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -69,15 +70,25 @@ class MainWindow(QWidget):
             if review_checkbox is not None:
                 review_count = product.find('span', {'class': 'a-size-base', 'dir': 'auto'})
                 if review_count is not None:
-                    if review_checkbox.text() == '无评论' and review_count.text.strip() != '':
-                        continue
-                    elif review_checkbox.text() == '有评论' and review_count.text.strip() == '':
-                        continue
+                    if review_checkbox.text() == '无评论' and review_count.text == '':
+                        result.append(product['data-asin'])
+                    elif review_checkbox.text() == '有评论' and review_count.text != '':
+                        result.append(product['data-asin'])
+            else:
+                result.append(product['data-asin'])
 
             # 检查销量是否为0
-            soldout = True
-            for days in soldout_list:
-                sales = product.find('span', {'aria-label': f'{days}天内销量：'})
-                if sales is not None:
-                    if sales.text.strip() != '0':
-                        soldout
+            if len(soldout_list) > 0:
+                sales_url = f'https://www.amazon.com/dp/{product["
+    def export(self, result):
+        # 将结果写入文本文件
+        filename, _ = QFileDialog.getSaveFileName(self, '保存文件', '.', '文本文件(*.txt)')
+        if filename:
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write('\n'.join(result))
+                self.output.append(f'结果已保存到文件 {filename}')
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    main_window = MainWindow()
+    sys.exit(app.exec_())
